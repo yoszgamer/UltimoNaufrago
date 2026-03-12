@@ -2,40 +2,42 @@
 # -*- coding: utf-8 -*-
 import pygame
 
-from code.menu import Menu
+from const import WIN_WIDTH, WIN_HEIGHT
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.window = pygame.display.set_mode(size=(640, 480))
-        self.state = None
-        self.camera_y = None
-        self.target_camera_y = None
-        self.menu = None
-        self.level = None
-        self.fishing = None
+        self.window = pygame.display.set_mode(size=(WIN_WIDTH, WIN_HEIGHT))
+        #self.state = None
+        #self.camera_y = None
+        #self.target_camera_y = None
+        #self.menu = None
+        #self.level = None
+        #self.fishing = None
 
-    def run(self, window):
+    def run(self):
         while True:
-            menu = Menu(self.window)
-            menu.run()
-            pass
             # Check for all events
-            #for event in pygame.event.get():
-            #    if event.type == pygame.QUIT:
-            #        pygame.quit()  # Close window
-            #        quit()  # End pygame
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()  # Close window
+                    quit()  # End pygame
+            background = pygame.image.load("asset/background.png").convert()
+            self.window.blit(background, (0, 0))
+            pygame.display.flip()
 
-    def update(self, ):
+    def update(self):
         pass
 
-    def draw(self, ):
+    def draw(self):
         pass
 
-    def changeState(self, ):
+    def changestate(self):
         pass
 
-    def moveCamera(self, ):
+    def movecamera(self):
         pass
 
+    def get_window(self):
+        return self.window
