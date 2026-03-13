@@ -4,30 +4,64 @@ import pygame
 from pygame import Surface, Rect
 from pygame.font import Font
 
-from code.game import Game
-
-game = Game()
-
 class Menu:
-    def __init__(self):
-        self.tutorial_text = None
-        self.start_button_rect = None
+    def __init__(self, window):
+        self.window = window
+        self.start_button_rect = Rect(0,0,220,60)
+        self.start_button_rect.center = (480,360)
+        self.start_clicked = False
 
-    def run(self, ):
+    def run(self):
         while True:
-
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                self.checkStartClick(event)
+            self.update()
+            self.draw()
 
     def update(self, ):
         pass
 
     def draw(self, ):
-        pass
+        # texto do tutorial
+        self.menu_text(
+            text_size=28,
+            text="W A S D - mover  |  SPACE - pesca / skill-check",
+            text_color=(255, 255, 255),
+            text_center_pos=(480, 100)
+        )
 
-    def checkStartClick(self, ):
-        pass
+        self.menu_text(
+            text_size=28,
+            text="Sobreviva às hordas de animais",
+            text_color=(255, 255, 255),
+            text_center_pos=(480, 130)
+        )
+
+        # botão
+        pygame.draw.rect(self.window, (200, 200, 200), self.start_button_rect)
+
+        self.menu_text(
+            text_size=32,
+            text="NOVA PARTIDA",
+            text_color=(0, 0, 0),
+            text_center_pos=self.start_button_rect.center
+        )
+
+        pygame.display.flip()
+
+    def checkStartClick(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if self.start_button_rect.collidepoint(event.pos):
+                    print('startgame')
+                    return True
+        return False
 
     def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
         text_font: Font = pygame.font.SysFont(name="Lucida Sans Typewriter", size=text_size)
         text_surf: Surface = text_font.render(text, True, text_color).convert_alpha()
         text_rect: Rect = text_surf.get_rect(center=text_center_pos)
-        game.get_window().blit(source=text_surf, dest=text_rect)
+        self.window.blit(source=text_surf, dest=text_rect)
