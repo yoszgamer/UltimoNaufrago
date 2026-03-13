@@ -17,6 +17,7 @@ class Game:
         self.menu = Menu(self.window)
         #self.level = None
         #self.fishing = None
+        self.fps = pygame.time.Clock()
 
     def run(self):
         while True:
@@ -28,11 +29,12 @@ class Game:
                 if self.state == STATE_MENU:
                     if self.menu.checkStartClick(event):
                         self.changeState(STATE_GAME)
+            self.fps.tick(60)
             self.update()
             self.draw()
 
     def update(self):
-        self.movecamera()
+        self.moveCamera()
 
     def draw(self):
         self.window.blit(self.background, (0, -self.camera_y))
@@ -49,7 +51,7 @@ class Game:
         elif new_state == STATE_FISHING:
             self.target_camera_y = 960
 
-    def movecamera(self):
-        speed = 0.4
+    def moveCamera(self):
+        speed = 12
         if self.camera_y < self.target_camera_y:
             self.camera_y += speed
