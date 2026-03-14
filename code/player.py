@@ -6,6 +6,14 @@ from code.entity import Entity
 from const import SPRITE_POS_W, SPRITE_POS_H, SPRITE_SCALE
 
 
+def get_sprite(sheet, col, row):
+    rect = pygame.Rect(col * SPRITE_POS_W, row * SPRITE_POS_H, SPRITE_POS_W, SPRITE_POS_H)
+    playersprite = pygame.Surface((SPRITE_POS_W, SPRITE_POS_H), pygame.SRCALPHA)
+    playersprite.blit(sheet, (0, 0), rect)
+    playersprite = pygame.transform.scale(playersprite,(SPRITE_POS_W * SPRITE_SCALE, SPRITE_POS_H * SPRITE_SCALE))
+    return playersprite
+
+
 class Player(Entity):
     def __init__(self, sprite, pos):
         super().__init__('Player', sprite, pos)
@@ -19,31 +27,31 @@ class Player(Entity):
         self.moving = False
         self.animations = {
             "idle": [
-                self.get_sprite(character, 0, 0)
+                get_sprite(character, 0, 0)
             ],
             "down": [
-                self.get_sprite(character, 2, 1),
-                self.get_sprite(character, 3, 1),
-                self.get_sprite(character, 4, 1),
-                self.get_sprite(character, 5, 1),
-                self.get_sprite(character, 0, 1),
-                self.get_sprite(character, 1, 1)
+                get_sprite(character, 2, 1),
+                get_sprite(character, 3, 1),
+                get_sprite(character, 4, 1),
+                get_sprite(character, 5, 1),
+                get_sprite(character, 0, 1),
+                get_sprite(character, 1, 1)
             ],
             "right": [
-                self.get_sprite(character, 0, 2),
-                self.get_sprite(character, 1, 2),
-                self.get_sprite(character, 2, 2),
-                self.get_sprite(character, 3, 2),
-                self.get_sprite(character, 4, 2),
-                self.get_sprite(character, 5, 2)
+                get_sprite(character, 0, 2),
+                get_sprite(character, 1, 2),
+                get_sprite(character, 2, 2),
+                get_sprite(character, 3, 2),
+                get_sprite(character, 4, 2),
+                get_sprite(character, 5, 2)
             ],
             "up": [
-                self.get_sprite(character, 2, 3),
-                self.get_sprite(character, 3, 3),
-                self.get_sprite(character, 4, 3),
-                self.get_sprite(character, 5, 3),
-                self.get_sprite(character, 0, 3),
-                self.get_sprite(character, 1, 3)
+                get_sprite(character, 2, 3),
+                get_sprite(character, 3, 3),
+                get_sprite(character, 4, 3),
+                get_sprite(character, 5, 3),
+                get_sprite(character, 0, 3),
+                get_sprite(character, 1, 3)
             ]
         }
         self.animations["left"] = [
@@ -69,37 +77,61 @@ class Player(Entity):
             self.frame = 0
 
     def move(self):
-        keys = pygame.key.get_pressed()
-        self.moving = False
-        if keys[pygame.K_w]:
-            self.rect.y -= self.speed
-            self.direction = "up"
-            self.moving = True
-        if keys[pygame.K_s]:
-            self.rect.y += self.speed
-            self.direction = "down"
-            self.moving = True
-        if keys[pygame.K_a]:
-            self.rect.x -= self.speed
-            self.direction = "left"
-            self.moving = True
-        if keys[pygame.K_d]:
-            self.rect.x += self.speed
-            self.direction = "right"
-            self.moving = True
 
+        keys = pygame.key.get_pressed()
+
+        dx = 0
+        dy = 0
+
+        if keys[pygame.K_w]:
+            dy -= 1
+            self.direction = "up"
+
+        if keys[pygame.K_s]:
+            dy += 1
+            self.direction = "down"
+
+        if keys[pygame.K_a]:
+            dx -= 1
+            self.direction = "left"
+
+        if keys[pygame.K_d]:
+            dx += 1
+            self.direction = "right"
+
+        self.moving = dx != 0 or dy != 0
+
+        # normalizar diagonal
+        if dx != 0 and dy != 0:
+            dx *= 0.7071
+            dy *= 0.7071
+
+        # aplicar movimento
+        self.rect.x += dx * self.speed
+        self.rect.y += dy * self.speed
+
+        # limites da arena
+        arena_left = 0
+        arena_right = 960
+        arena_top = 540
+        arena_bottom = 960
+
+        if self.rect.left < arena_left:
+            self.rect.left = arena_left
+
+        if self.rect.right > arena_right:
+            self.rect.right = arena_right
+
+        if self.rect.top < arena_top:
+            self.rect.top = arena_top
+
+        if self.rect.bottom > arena_bottom:
+            self.rect.bottom = arena_bottom
     def attack(self, ):
         pass
 
     def takeDamage(self, ):
         pass
-
-    def get_sprite(self, sheet, col, row):
-        rect = pygame.Rect(col * SPRITE_POS_W, row * SPRITE_POS_H, SPRITE_POS_W, SPRITE_POS_H)
-        playersprite = pygame.Surface((SPRITE_POS_W, SPRITE_POS_H), pygame.SRCALPHA)
-        playersprite.blit(sheet, (0, 0), rect)
-        playersprite = pygame.transform.scale(playersprite,(SPRITE_POS_W * SPRITE_SCALE, SPRITE_POS_H * SPRITE_SCALE))
-        return playersprite
 
     def draw(self, window, camera_y):
         sprite = self.animations[self.direction][self.frame]
