@@ -6,6 +6,7 @@ from code import player
 from code.menu import Menu
 from code.player import Player
 from const import WIN_WIDTH, WIN_HEIGHT, STATE_MENU, STATE_GAME, STATE_FISHING
+from code.enemy import Enemy
 
 
 class Game:
@@ -21,7 +22,10 @@ class Game:
         #self.level = None
         #self.fishing = None
         self.fps = pygame.time.Clock()
-
+        self.enemies = [
+            Enemy("crab", (200, 700)),
+            Enemy("snake", (600, 700))
+        ]
     def run(self):
         while True:
             # Check for all events
@@ -41,12 +45,16 @@ class Game:
 
         if self.state == STATE_GAME:
             self.player.update()
+            for enemy in self.enemies:
+                enemy.update()
 
     def draw(self):
         self.window.blit(self.background, (0, -self.camera_y))
         if self.state == STATE_MENU:
             self.menu.draw()
         if self.state == STATE_GAME:
+            for enemy in self.enemies:
+                enemy.draw(self.window, self.camera_y)
             self.player.draw(self.window, self.camera_y)
         pygame.display.flip()
 

@@ -16,4 +16,5 @@ class Entity:
         pass
 
     def draw(self, window, camera_y):
-        window.blit(self.sprite, (self.rect.x, self.rect.y - camera_y))
+        if self.sprite:
+            window.blit(self.sprite, (self.rect.x, self.rect.y - camera_y))
