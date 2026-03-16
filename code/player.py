@@ -20,6 +20,8 @@ class Player(Entity):
         self.health = 100
         self.speed = 4
         self.damage = 10
+        self.attack_cooldown = 25
+        self.attack_timer = 0
         character = pygame.image.load("asset/character.png").convert_alpha()
         self.direction = "down"
         self.frame = 0
@@ -61,9 +63,10 @@ class Player(Entity):
         self.rect.width = SPRITE_POS_W * SPRITE_SCALE
         self.rect.height = SPRITE_POS_H * SPRITE_SCALE
 
-    def update(self, ):
+    def update(self, enemies):
         self.move()
         self.animate()
+        self.auto_attack(enemies)
 
     def animate(self):
         if self.moving:
@@ -118,12 +121,51 @@ class Player(Entity):
             self.rect.top = arena_top
         if self.rect.bottom > arena_bottom:
             self.rect.bottom = arena_bottom
-    def attack(self, ):
-        pass
 
+    def auto_attack(self, enemies):
+        if self.attack_timer > 0:
+            self.attack_timer -= 1
+            return
+        self.attack(enemies)
+        self.attack_timer = self.attack_cooldown
+
+    def attack(self, enemies):
+        attack_range = 70 * SPRITE_SCALE
+        attack_width = 50 * SPRITE_SCALE
+        if self.direction == "up":
+            attack_rect = pygame.Rect(
+                self.rect.centerx - attack_width // 2,
+                self.rect.top - attack_range,
+                attack_width,
+                attack_range
+            )
+        elif self.direction == "down":
+            attack_rect = pygame.Rect(
+                self.rect.centerx - attack_width // 2,
+                self.rect.bottom,
+                attack_width,
+                attack_range
+            )
+        elif self.direction == "left":
+            attack_rect = pygame.Rect(
+                self.rect.left - attack_range,
+                self.rect.centery - attack_width // 2,
+                attack_range,
+                attack_width
+            )
+        elif self.direction == "right":
+            attack_rect = pygame.Rect(
+                self.rect.right,
+                self.rect.centery - attack_width // 2,
+                attack_range,
+                attack_width
+            )
+        for enemy in enemies:
+            if attack_rect.colliderect(enemy.rect):
+                enemy.takeDamage(self.damage)
     def takeDamage(self, damage):
         self.health -= damage
-        print("Player HP:", self.health)
+        #print("Player HP:", self.health)
         if self.health <= 0:
             print("Player morreu")
 

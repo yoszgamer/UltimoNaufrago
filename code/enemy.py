@@ -30,6 +30,7 @@ class Enemy(Entity):
         self.health = stat["health"]
         self.speed = stat["speed"]
         self.damage = stat["damage"]
+        self.is_dead = False
         self.attack_cooldown = 60
         self.attack_timer = 0
         self.animator = Animator(
@@ -61,6 +62,12 @@ class Enemy(Entity):
 
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
+
+    def takeDamage(self, damage):
+        self.health -= damage
+        print("enemy:", self.health)
+        if self.health <= 0:
+            self.is_dead = True
 
     def attack(self, player):
 

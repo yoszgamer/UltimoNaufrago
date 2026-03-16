@@ -44,7 +44,8 @@ class Game:
         self.moveCamera()
 
         if self.state == STATE_GAME:
-            self.player.update()
+            self.player.update(self.enemies)
+            self.enemies = [enemy for enemy in self.enemies if not enemy.is_dead]
             for enemy in self.enemies:
                 enemy.update(self.player)
 
