@@ -3,6 +3,7 @@
 import pygame
 
 from code.entity import Entity
+from code.weapon import Weapon
 from const import SPRITE_POS_W, SPRITE_POS_H, SPRITE_SCALE
 
 
@@ -27,6 +28,13 @@ class Player(Entity):
         self.frame = 0
         self.animation_timer = 0
         self.moving = False
+        self.weapon = Weapon(
+            "asset/animation_attack_stick.png",
+            32,
+            64,
+            3,
+            30
+        )
         self.animations = {
             "idle": [
                 get_sprite(character, 0, 0)
@@ -67,6 +75,7 @@ class Player(Entity):
         self.move()
         self.animate()
         self.auto_attack(enemies)
+        self.weapon.update()
 
     def animate(self):
         if self.moving:
@@ -111,7 +120,7 @@ class Player(Entity):
         arena_left = 0
         arena_right = 960
         arena_top = 540
-        arena_bottom = 960
+        arena_bottom = 1080
 
         if self.rect.left < arena_left:
             self.rect.left = arena_left
@@ -172,3 +181,5 @@ class Player(Entity):
     def draw(self, window, camera_y):
         sprite = self.animations[self.direction][self.frame]
         window.blit(sprite, (self.rect.x, self.rect.y - camera_y))
+        self.weapon.draw(window, self, camera_y)
+        pygame.draw.circle(window, (255, 0, 0), self.rect.center, 30)
