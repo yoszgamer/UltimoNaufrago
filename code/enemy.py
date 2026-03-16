@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import math
+
 import pygame
 
 from code.animator import Animator
@@ -28,6 +30,8 @@ class Enemy(Entity):
         self.health = stat["health"]
         self.speed = stat["speed"]
         self.damage = stat["damage"]
+        self.attack_cooldown = 60
+        self.attack_timer = 0
         self.animator = Animator(
             stat["sprite"],
             ENEMY_SPRITE_POS_W,
@@ -36,18 +40,38 @@ class Enemy(Entity):
             SPRITE_SCALE
         )
 
-    def update(self):
+    def update(self, player):
+        self.chase(player)
         self.animator.update()
+        self.attack(player)
 
     def animate(self):
         self.animator.update(20)
         self.sprite = self.animator.get_frame(0)
 
     def chase(self, player):
-        pass
+        dx = player.rect.x - self.rect.x
+        dy = player.rect.y - self.rect.y
 
-    def attack(self, ):
-        pass
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+
+        if distance > 0:
+            dx /= distance
+            dy /= distance
+
+            self.rect.x += dx * self.speed
+            self.rect.y += dy * self.speed
+
+    def attack(self, player):
+
+        if self.rect.colliderect(player.rect):
+
+            if self.attack_timer <= 0:
+                player.takeDamage(self.damage)
+                self.attack_timer = self.attack_cooldown
+
+        if self.attack_timer > 0:
+            self.attack_timer -= 1
 
     def draw(self, window, camera_y):
         sprite = self.animator.get_frame()

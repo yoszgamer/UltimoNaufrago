@@ -46,7 +46,7 @@ class Game:
         if self.state == STATE_GAME:
             self.player.update()
             for enemy in self.enemies:
-                enemy.update()
+                enemy.update(self.player)
 
     def draw(self):
         self.window.blit(self.background, (0, -self.camera_y))

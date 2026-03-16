@@ -77,24 +77,18 @@ class Player(Entity):
             self.frame = 0
 
     def move(self):
-
         keys = pygame.key.get_pressed()
-
         dx = 0
         dy = 0
-
         if keys[pygame.K_w]:
             dy -= 1
             self.direction = "up"
-
         if keys[pygame.K_s]:
             dy += 1
             self.direction = "down"
-
         if keys[pygame.K_a]:
             dx -= 1
             self.direction = "left"
-
         if keys[pygame.K_d]:
             dx += 1
             self.direction = "right"
@@ -118,20 +112,20 @@ class Player(Entity):
 
         if self.rect.left < arena_left:
             self.rect.left = arena_left
-
         if self.rect.right > arena_right:
             self.rect.right = arena_right
-
         if self.rect.top < arena_top:
             self.rect.top = arena_top
-
         if self.rect.bottom > arena_bottom:
             self.rect.bottom = arena_bottom
     def attack(self, ):
         pass
 
-    def takeDamage(self, ):
-        pass
+    def takeDamage(self, damage):
+        self.health -= damage
+        print("Player HP:", self.health)
+        if self.health <= 0:
+            print("Player morreu")
 
     def draw(self, window, camera_y):
         sprite = self.animations[self.direction][self.frame]
