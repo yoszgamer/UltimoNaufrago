@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 import pygame
 
-from code import player
+from code import player, enemySpawner
+from code.enemySpawner import EnemySpawner
+from code.fishingGame import FishingGame
 from code.menu import Menu
 from code.player import Player
 from const import WIN_WIDTH, WIN_HEIGHT, STATE_MENU, STATE_GAME, STATE_FISHING
@@ -18,10 +20,12 @@ class Game:
         self.camera_y = 0
         self.target_camera_y = 0
         self.menu = Menu(self.window)
+        self.fishingGame = FishingGame()
         self.player = Player(None, (480, 720))
         #self.level = None
         #self.fishing = None
         self.fps = pygame.time.Clock()
+        self.spawner = EnemySpawner()
         self.enemies = [
             Enemy("crab", (200, 700)),
             Enemy("snake", (600, 700))
@@ -36,18 +40,29 @@ class Game:
                 if self.state == STATE_MENU:
                     if self.menu.checkStartClick(event):
                         self.changeState(STATE_GAME)
+
             self.fps.tick(60)
             self.update()
             self.draw()
 
     def update(self):
         self.moveCamera()
-
         if self.state == STATE_GAME:
             self.player.update(self.enemies)
             self.enemies = [enemy for enemy in self.enemies if not enemy.is_dead]
             for enemy in self.enemies:
                 enemy.update(self.player)
+            self.spawner.update(self.enemies, self.player)
+            if self.spawner.isWaveFinished(self.enemies):
+                self.changeState(STATE_FISHING)
+                self.fishingGame.start()
+        elif self.state == STATE_FISHING:
+            self.fishingGame.update()
+            if self.fishingGame.is_finished():
+                self.spawner.startWave()
+                self.enemies.clear()
+                self.player.rect.center = (480, 720)
+                self.changeState(STATE_GAME)
 
     def draw(self):
         self.window.blit(self.background, (0, -self.camera_y))
@@ -72,3 +87,9 @@ class Game:
         speed = 12
         if self.camera_y < self.target_camera_y:
             self.camera_y += speed
+            if self.camera_y > self.target_camera_y:
+                self.camera_y = self.target_camera_y
+        elif self.camera_y > self.target_camera_y:
+            self.camera_y -= speed
+            if self.camera_y < self.target_camera_y:
+                self.camera_y = self.target_camera_y

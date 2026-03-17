@@ -20,9 +20,12 @@ class Player(Entity):
         super().__init__('Player', sprite, pos)
         self.health = 100
         self.speed = 4
-        self.damage = 10
+        self.damage = 50
         self.attack_cooldown = 25
         self.attack_timer = 0
+        self.attack_duration = 8
+        self.attack_active = 0
+        self.hit_enemies = set()
         character = pygame.image.load("asset/character.png").convert_alpha()
         self.direction = "down"
         self.frame = 0
@@ -74,8 +77,20 @@ class Player(Entity):
     def update(self, enemies):
         self.move()
         self.animate()
-        self.auto_attack(enemies)
         self.weapon.update()
+
+        # controle de ataque
+        if self.attack_timer > 0:
+            self.attack_timer -= 1
+        else:
+            self.attack_active = self.attack_duration
+            self.attack_timer = self.attack_cooldown
+            self.hit_enemies.clear()
+
+        # ataque ativo: verifica se o ataque está ativo, se estiver ataca os inimigos 1x e o desativa. Evita varios hits no mesmo inimigo em um uníco ataque.
+        if self.attack_active > 0:
+            self.attack(enemies)
+            self.attack_active -= 1
 
     def animate(self):
         if self.moving:
@@ -107,7 +122,7 @@ class Player(Entity):
 
         self.moving = dx != 0 or dy != 0
 
-        # normalizar diagonal
+        # normaliza a velocidade diagonal
         if dx != 0 and dy != 0:
             dx *= 0.7071
             dy *= 0.7071
@@ -131,47 +146,34 @@ class Player(Entity):
         if self.rect.bottom > arena_bottom:
             self.rect.bottom = arena_bottom
 
-    def auto_attack(self, enemies):
-        if self.attack_timer > 0:
-            self.attack_timer -= 1
-            return
-        self.attack(enemies)
-        self.attack_timer = self.attack_cooldown
-
     def attack(self, enemies):
-        attack_range = 70 * SPRITE_SCALE
-        attack_width = 50 * SPRITE_SCALE
-        if self.direction == "up":
-            attack_rect = pygame.Rect(
-                self.rect.centerx - attack_width // 2,
-                self.rect.top - attack_range,
-                attack_width,
-                attack_range
-            )
-        elif self.direction == "down":
-            attack_rect = pygame.Rect(
-                self.rect.centerx - attack_width // 2,
-                self.rect.bottom,
-                attack_width,
-                attack_range
-            )
+        sprite = self.weapon.rotate_sprite(self.direction)
+        rect = sprite.get_rect()
+
+        cx, cy = self.rect.center
+
+        if self.direction == "right":
+            rect.midleft = (cx, cy)
+
         elif self.direction == "left":
-            attack_rect = pygame.Rect(
-                self.rect.left - attack_range,
-                self.rect.centery - attack_width // 2,
-                attack_range,
-                attack_width
-            )
-        elif self.direction == "right":
-            attack_rect = pygame.Rect(
-                self.rect.right,
-                self.rect.centery - attack_width // 2,
-                attack_range,
-                attack_width
-            )
+            rect.midright = (cx, cy)
+
+        elif self.direction == "up":
+            rect.midbottom = (cx, cy)
+
+        elif self.direction == "down":
+            rect.midtop = (cx, cy)
+
+        self.last_attack_rect = rect  # debug
+
         for enemy in enemies:
-            if attack_rect.colliderect(enemy.rect):
+
+            if enemy in self.hit_enemies:
+                continue  # já tomou dano nesse ataque
+
+            if rect.colliderect(enemy.rect):
                 enemy.takeDamage(self.damage)
+                self.hit_enemies.add(enemy)
     def takeDamage(self, damage):
         self.health -= damage
         #print("Player HP:", self.health)
@@ -182,4 +184,3 @@ class Player(Entity):
         sprite = self.animations[self.direction][self.frame]
         window.blit(sprite, (self.rect.x, self.rect.y - camera_y))
         self.weapon.draw(window, self, camera_y)
-        pygame.draw.circle(window, (255, 0, 0), self.rect.center, 30)
