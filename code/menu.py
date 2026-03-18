@@ -30,7 +30,7 @@ class Menu:
 
     def draw(self, ):
         logo_x = (self.window.get_width() - self.logo.get_width()) // 2
-        logo_y = 50
+        logo_y = 55
         icon_x = 370
         icon_y = 220
 
