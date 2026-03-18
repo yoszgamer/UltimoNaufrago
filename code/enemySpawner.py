@@ -14,7 +14,6 @@ class EnemySpawner:
         self.enemy_pool = ["crab", "snake"]
 
     def update(self, enemies, player):
-        print(self.wave)
         if self.spawned >= self.spawnRate:
             return
         self.spawn_timer += 1

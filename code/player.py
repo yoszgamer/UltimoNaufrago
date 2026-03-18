@@ -18,9 +18,11 @@ def get_sprite(sheet, col, row):
 class Player(Entity):
     def __init__(self, sprite, pos):
         super().__init__('Player', sprite, pos)
+        self.base_damage = 50
+        self.damage_multiplier = 1
+        self.stats = {"damage": 0}
         self.health = 100
         self.speed = 4
-        self.damage = 50
         self.attack_cooldown = 25
         self.attack_timer = 0
         self.attack_duration = 8
@@ -164,21 +166,21 @@ class Player(Entity):
         elif self.direction == "down":
             rect.midtop = (cx, cy)
 
-        self.last_attack_rect = rect  # debug
-
         for enemy in enemies:
 
             if enemy in self.hit_enemies:
                 continue  # já tomou dano nesse ataque
 
             if rect.colliderect(enemy.rect):
-                enemy.takeDamage(self.damage)
+                enemy.takeDamage(self.get_damage())
                 self.hit_enemies.add(enemy)
     def takeDamage(self, damage):
         self.health -= damage
-        #print("Player HP:", self.health)
         if self.health <= 0:
-            print("Player morreu")
+            pass
+
+    def get_damage(self):
+        return int(self.base_damage * self.damage_multiplier)
 
     def draw(self, window, camera_y):
         sprite = self.animations[self.direction][self.frame]

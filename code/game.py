@@ -3,6 +3,7 @@
 import pygame
 
 from code import player, enemySpawner
+from code.HUD import HUD
 from code.enemySpawner import EnemySpawner
 from code.fishingGame import FishingGame
 from code.menu import Menu
@@ -22,6 +23,7 @@ class Game:
         self.menu = Menu(self.window)
         self.fishingGame = FishingGame()
         self.player = Player(None, (480, 720))
+        self.hud = HUD()
         #self.level = None
         #self.fishing = None
         self.fps = pygame.time.Clock()
@@ -40,6 +42,9 @@ class Game:
                 if self.state == STATE_MENU:
                     if self.menu.checkStartClick(event):
                         self.changeState(STATE_GAME)
+                if self.state == STATE_FISHING:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        self.fishingGame.checkInput(event.pos)
 
             self.fps.tick(60)
             self.update()
@@ -55,13 +60,16 @@ class Game:
             self.spawner.update(self.enemies, self.player)
             if self.spawner.isWaveFinished(self.enemies):
                 self.changeState(STATE_FISHING)
-                self.fishingGame.start()
+                self.fishingGame.start(self.player)
+
         elif self.state == STATE_FISHING:
             self.fishingGame.update()
+
             if self.fishingGame.is_finished():
+                self.fishingGame.giveReward(self.player)
+
                 self.spawner.startWave()
                 self.enemies.clear()
-                self.player.rect.center = (480, 720)
                 self.changeState(STATE_GAME)
 
     def draw(self):
@@ -72,6 +80,10 @@ class Game:
             for enemy in self.enemies:
                 enemy.draw(self.window, self.camera_y)
             self.player.draw(self.window, self.camera_y)
+            self.hud.draw(self.window, self.player, self.spawner)
+        if self.state == STATE_FISHING:
+            self.player.draw(self.window, self.camera_y)
+            self.fishingGame.draw(self.window)
         pygame.display.flip()
 
     def changeState(self, new_state):
