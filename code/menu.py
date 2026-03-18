@@ -8,8 +8,12 @@ class Menu:
     def __init__(self, window):
         self.window = window
         self.start_button_rect = Rect(0,0,220,60)
-        self.start_button_rect.center = (480,360)
+        self.start_button_rect.center = (480,420)
         self.start_clicked = False
+        self.logo = pygame.image.load("asset/UI_gamelogo.png").convert_alpha()
+        self.logo = pygame.transform.scale(self.logo, (200, 100))
+        self.icon_wasd = pygame.image.load("asset/UI_Tutorial_WASD.png").convert_alpha()
+        self.icon_wasd = pygame.transform.scale(self.icon_wasd, (37, 25))
 
     def run(self):
         while True:
@@ -25,19 +29,26 @@ class Menu:
         pass
 
     def draw(self, ):
-        # texto do tutorial
+        logo_x = (self.window.get_width() - self.logo.get_width()) // 2
+        logo_y = 50
+        icon_x = 370
+        icon_y = 220
+
+        self.window.blit(self.icon_wasd, (icon_x, icon_y))
+
+        self.window.blit(self.logo, (logo_x, logo_y))
         self.menu_text(
             text_size=28,
-            text="W A S D - mover  |  SPACE - pesca / skill-check",
+            text="MOVIMENTAÇÃO",
             text_color=(255, 255, 255),
-            text_center_pos=(480, 100)
+            text_center_pos=(500, 230)
         )
 
         self.menu_text(
             text_size=28,
             text="Sobreviva às hordas de animais",
             text_color=(255, 255, 255),
-            text_center_pos=(480, 130)
+            text_center_pos=(480, 280)
         )
 
         # botão

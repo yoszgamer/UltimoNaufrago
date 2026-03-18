@@ -58,3 +58,9 @@ class EnemySpawner:
 
     def isWaveFinished(self, enemies):
         return self.spawned >= self.spawnRate and len(enemies) == 0
+
+    def reset(self):
+        self.wave = 1
+        self.spawned = 0
+        self.spawnRate = 3
+        self.spawn_timer = 0
