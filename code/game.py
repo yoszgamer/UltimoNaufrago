@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import sys
+
 import pygame
 
 from code import player, enemySpawner
@@ -51,7 +53,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
                 #Verifica o clique no botão "novo jogo" no menu
                 if self.state == STATE_MENU:
                     if self.menu.checkStartClick(event):
